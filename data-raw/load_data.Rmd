@@ -1,0 +1,194 @@
+---
+# The report title block contains all of this information, although
+# if they are missing they are excluded. Note that running_title is not
+# included, but is part of the header of the rest of the report.
+title: "Surfaceome Data Loading"
+running_title: ""
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+project: ""
+srpt_number:
+version: 1.0
+investigators:
+  - name: ""
+  - name: ""
+project_team:
+analysis_contact:
+report_author: ""
+analysis_team:
+organization: "MCC Biostatistics & Bioinformatics"
+
+# A banner will run across the top page. For template packages,
+# you can use dsreportr::banner("mcctemplates::bbsr_pdf") or whatever
+# template string is used in the output block. Or name your own
+# image file. Note the width option allows the image to be stretched,
+# which may not be your intent.
+banner: true
+banner_width: 5.5in
+
+# header-includes is a custom section for including extra latex. Due
+# to filename issues, we define the report banner here, but other
+# includes can be added as well.
+header-includes:
+  - "\\newcommand{\\dsreportrbanner}{`r dsreportr::banner('mcctemplates::bbsr_pdf')`}"
+  
+# Output specific options. Note that this skeleton only really applies
+# to a specific template.
+output:
+  mcctemplates::bbsr_pdf:
+    latex_engine: pdflatex
+    keep_tex: false
+    
+# General settings for the report. Many of these settings are defaulted
+# and not always needed but can be overridden if desired.
+toc: yes
+toc_depth: 2
+number_sections: true
+fontsize: 11pt
+geometry:
+  - margin=0.5in
+  - top=1in
+  - bottom=1in
+  - footskip=0.5in
+  
+# This is a brief statement of the report purpose, etc that would be
+# available at the outset.
+abstract: 
+
+# These settings are extras, but I'm not sure they are valid.
+colorlinks: false
+urlcolor: "blue"
+linkcolor: "cyan"
+citecolor: "gray"
+toccolor: "cyan"
+
+# Since this document can change over time, it is defaulted to output a pdf with the
+# datestamp appended (i.e., _YYYY_MM_DD.pdf). Note the output file is stored in
+# the project/package sub-directory "delivery".
+knit: dsreportr::knit_with_datestamp
+---
+
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+# Add packages here that you use, but don't load via library.
+rlang::check_installed(c("base"))
+
+# Knitr options are helpful, such as turning off code blocks.
+knitr::opts_chunk$set(
+  fig.width=7.5, fig.height=6, # This works for 1in margins, use 7.5/6 for 0.5 margins
+  fig.path="Figures/", # Store the figures, handing for referring back to the report
+  echo=FALSE, # Turn off code blocks
+  warning=TRUE, # Turn off warnings and messages. Only do when you know what they are.
+  message=TRUE,
+  fig.align="left" # Left align figures to get most space.
+)
+```
+
+# Overview
+See the `README.md` in the main directory for details on the source data. It is from two different research projects (I believe the same group), but both are trying to assemble a list of surfaceome proteins/genes. CSPA (Cell Surface Protein Atlas) is an experimentally derived list of surface proteins. The other (SURFY) is machine learning inferred. This document is to load these tables and make them available in R. The files are available on their respective websites as well as in the publications.
+
+
+
+## CSPA
+The Cell Surface Protein Atlas is an empirically determined set of surface proteins. We are using `S2_File.xlsx` from the website, which is the same as in the publication. There are a couple of sheets in the spreadsheet. Per the paper (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4404347/) we want `Table A` which is the list of human surfaceome proteins.
+
+Note there isn't much to do here, since each omics type will require it's own mapping. We provide the default (gene) mapping which is what is comes with (RNASeq data should probably use the `ENTREZ gene symbol` field). Mapping to the U133 chip should involve the `ENTREZ_gene_id` field.
+
+For convenience, I will create two different tables:
+- `cspa` the original
+- `cspa_gene` original with GENE (not sure about name)
+- `cspa_u133plus2` original with probeset
+
+
+```{r load-cspa}
+cspa <- readxl::read_excel(here::here("data-raw","cspa","S2_File.xlsx"), sheet = "Table A")
+cspa_gene <- dplyr::mutate(cspa, GENE = `ENTREZ gene symbol`)
+```
+
+
+```{r build-cspa-probeset}
+x<-cspa |>
+  dplyr::mutate(ENTREZ_gene_ID = as.character(ENTREZ_gene_ID)) |>
+  dplyr::filter(!is.na(ENTREZ_gene_ID))
+
+cspa_hgu133plus2 <- AnnotationDbi::select(
+  hgu133plus2.db::hgu133plus2.db, 
+  keytype="ENTREZID", 
+  keys = x$ENTREZ_gene_ID, 
+  columns = c("PROBEID")
+) |>
+  dplyr::filter(!is.na(PROBEID)) |>
+  dplyr::left_join(x, by=c("ENTREZID"="ENTREZ_gene_ID"))
+
+```
+
+These objects will be used in the package.
+```{r}
+usethis::use_data(cspa, cspa_gene, cspa_hgu133plus2, overwrite = TRUE)
+```
+## Surfaceome Predictions
+
+A research group has produced in silico predictions of surface proteins (https://wlab.ethz.ch/surfaceome/). This was published in PNAS (https://www.pnas.org/content/115/46/E10988). The resulting "Surfaceome" is available from supplemental data in that publication (https://www.pnas.org/highwire/filestream/834129/field_highwire_adjunct_files/1/pnas.1808790115.sd01.xls) as Tab ```"11.7_Surfaceome"```. This sheet is the same as `https://wlab.ethz.ch/surfaceome/table_S3_surfaceome.xlsx` spreadsheet, tab `in silico surfaceome only`.
+
+```{r load-surfy}
+
+surfy <- readxl::read_excel(
+  here::here("data-raw","surfy","table_S3_surfaceome.xlsx"), 
+  sheet = "in silico surfaceome only",
+  skip = 1
+)
+surfy_gene <- surfy |>
+  dplyr::mutate(GENE = `UniProt gene`)
+
+```
+
+
+```{r surfy-probeset}
+x <- surfy |>
+  dplyr::mutate(GeneID = as.character(GeneID)) |>
+  dplyr::filter(!is.na(GeneID))
+
+
+surfy_hgu133plus2 <- AnnotationDbi::select(
+  hgu133plus2.db::hgu133plus2.db, 
+  keytype="ENTREZID", 
+  keys = x$GeneID,
+  columns = c("PROBEID")
+) |>
+  dplyr::filter(!is.na(PROBEID)) |>
+  dplyr::left_join(x, by=c("ENTREZID"="GeneID"))
+
+```
+
+These objects will be used in the package.
+```{r}
+usethis::use_data(surfy, surfy_gene, surfy_hgu133plus2, overwrite = TRUE)
+```
+# Summary
+
+<!---
+ATTENTION: The code below will accumulate all of the code blocks and print them out
+here, as section (called Code). This allows you to still have the code but not clutter
+the report.
+--->
+\newpage
+# Code
+This section includes all of the code blocks from this report, in order to facilitate 
+reproducible research and provide additional details on the report. 
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+```
+
+
+
+<!---
+ATTENTION: The below text should remain at the bottom of your markdown
+as it provides tables about the runtime environment. You should leave
+everything from the start of this paragraph down at the end of the 
+document.
+--->
+\newpage
+# Session Information
+The information in this section is included in the report to facilitate reproducible research. The specific environment under which the code was run is detailed. 
+```{r session-information, echo=FALSE, results='asis'}
+dsreportr::print_session_information()
+```
