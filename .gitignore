@@ -1,3 +1,9 @@
 .Rproj.user
 .DS_Store
 .Rhistory
+docs
+inst/doc
+data-raw/work
+data-raw/uniprot
+data-raw/surfy
+data-raw/cspa

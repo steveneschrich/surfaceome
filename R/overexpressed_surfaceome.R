@@ -1,19 +1,18 @@
-#' Title
+#' Calculate the over-expressed surfaceome
 #'
-#' @param x
-#' @param which
+#' @param x A matrix of expression data
+#' @param which Which surfaceome definition to use (surfy or cspa)
 #'
-#' @return
+#' @return A ordering of the gene expression by over-expression (median expression).
 #' @export
 #'
 #' @examples
 overexpressed_surfaceome <- function(x, which=c("surfy","cspa")) {
   stopifnot(class(x) %in% c("ExpressionSet"))
 
-  which <- match.args(which,c("surfy","cspa"))
-  data(surfy_gene)
+  which <- match.arg(which,c("surfy","cspa"))
 
-  gex <- Biobase::exprs(x)[surfy_gene$GENE,]
+  gex <- Biobase::exprs(x)[surfaceome::surfy_gene$GENE,]
   gex_median <- Biobase::rowMedians(gex)
 
   gex[order(gex_median, decreasing = TRUE),]
