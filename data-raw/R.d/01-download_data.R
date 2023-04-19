@@ -20,3 +20,12 @@ curl::curl_download(
 )
 cli::cli_alert_success("Downloaded {dest} ({fs::file_size(here::here(dest))})")
 
+src <- "https://www.pnas.org/doi/suppl/10.1073/pnas.1808790115/suppl_file/pnas.1808790115.sd01.xls"
+dest <- "data-raw/surfy/dataset_s01.xls"
+cli::cli_alert_info("Downloading {src}")
+curl::curl_download(
+  url=src,
+  destfile = here::here(dest),
+  handle = curl::new_handle(ssl_verifyhost=0)
+)
+cli::cli_alert_success("Downloaded {dest} ({fs::file_size(here::here(dest))})")
