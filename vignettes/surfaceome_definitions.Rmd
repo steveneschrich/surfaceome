@@ -1,0 +1,39 @@
+---
+title: "Surfaceome Definitions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{surfaceome_definitions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(surfaceome)
+```
+# Overview
+See the `README.md` in the main directory for details on the source data. It is from two different research projects (I believe the same group), but both are trying to assemble a list of surfaceome proteins/genes. CSPA (Cell Surface Protein Atlas) is an experimentally derived list of surface proteins. The other (SURFY) is machine learning inferred. This package loads these tables and makes them available in R. The files are available on their respective websites as well as in the publications.
+
+
+
+## CSPA
+The Cell Surface Protein Atlas is an empirically determined set of surface proteins. We are using `S2_File.xlsx` from the website, which is the same as in the publication. There are a couple of sheets in the spreadsheet. Per the paper (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4404347/) we want `Table A` which is the list of human surfaceome proteins.
+
+Note there isn't much to do here, since each omics type will require it's own mapping. We provide the default (gene) mapping which is what is comes with (RNASeq data should probably use the `ENTREZ gene symbol` field). Mapping to the U133 chip should involve the `ENTREZ_gene_id` field.
+
+For convenience, I will create three different tables:
+- `cspa` the original
+- `cspa_gene` original with GENE (not sure about name)
+- `cspa_u133plus2` original with probeset
+
+## Surfaceome Predictions
+
+A research group has produced in silico predictions of surface proteins (https://wlab.ethz.ch/surfaceome/). This was published in PNAS (https://www.pnas.org/content/115/46/E10988). The resulting "Surfaceome" is available from supplemental data in that publication (https://www.pnas.org/highwire/filestream/834129/field_highwire_adjunct_files/1/pnas.1808790115.sd01.xls) as Tab ```"11.7_Surfaceome"```. This sheet is the same as `https://wlab.ethz.ch/surfaceome/table_S3_surfaceome.xlsx` spreadsheet, tab `in silico surfaceome only`.
+
+The full PNAS publication "Dataset_S01" spreadsheet is also downloaded. At the moment, this is because Sheet 11.10 provides cleaner categorization of proteins into "Almen category" and "Almen subclass".
