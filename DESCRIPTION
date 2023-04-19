@@ -2,9 +2,12 @@ Package: surfaceome
 Title: Human Surfaceome Annotation
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+    person("Steven", "Eschrich", , "Steven.Eschrich@moffitt.org", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: This package is designed to work with Human Surfaceome genes/proteins. One of 
+  the first uses is to categorize what are surfaceome genes (there are several sources). 
+  Additionally, the goal is to include tools for identifying the expressed surfaceome in
+  a molecular experiment.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
