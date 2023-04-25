@@ -21,4 +21,12 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Imports: 
-    Biobase
+    Biobase,
+    cli,
+    data.table,
+    dplyr,
+    matrixStats,
+    purrr,
+    rlang,
+    stringr,
+    tibble

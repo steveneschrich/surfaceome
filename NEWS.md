@@ -1,4 +1,5 @@
 # surfaceome 0.1.0
+* Added code from surfaceome project to annotate transcriptome, annotate surfaceome.
 
 # surfaceome 0.0.0.9000
 
