@@ -25,6 +25,18 @@
     <loc>https://steveneschrich.github.io/surfaceome/news/index.html</loc>
   </url>
   <url>
+    <loc>https://steveneschrich.github.io/surfaceome/reference/annotate_surfaceome.html</loc>
+  </url>
+  <url>
+    <loc>https://steveneschrich.github.io/surfaceome/reference/annotate_transcriptome.html</loc>
+  </url>
+  <url>
+    <loc>https://steveneschrich.github.io/surfaceome/reference/calculate_gene_statistics.html</loc>
+  </url>
+  <url>
+    <loc>https://steveneschrich.github.io/surfaceome/reference/collapse_reporters.html</loc>
+  </url>
+  <url>
     <loc>https://steveneschrich.github.io/surfaceome/reference/cspa.html</loc>
   </url>
   <url>
@@ -38,6 +50,9 @@
   </url>
   <url>
     <loc>https://steveneschrich.github.io/surfaceome/reference/overexpressed_surfaceome.html</loc>
+  </url>
+  <url>
+    <loc>https://steveneschrich.github.io/surfaceome/reference/subset_surfaceome.html</loc>
   </url>
   <url>
     <loc>https://steveneschrich.github.io/surfaceome/reference/surfy.html</loc>
